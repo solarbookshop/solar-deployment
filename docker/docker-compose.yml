@@ -20,16 +20,16 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://solar-postgres:5432/solardb_catalog
       - SPRING_PROFILES_ACTIVE=testdata
   
-  # config-service:
-  #   image: "config-service"
-  #   container_name: "config-service"
-  #   ports:
-  #     - 8888:8888
-  #     - 9888:9888
-  #   environment:
-  #     - BPL_JVM_THREAD_COUNT=10
-  #     - BPL_DEBUG_ENABLED=true
-  #     - BPL_DEBUG_PORT=9888
+  config-service:
+    image: "config-service"
+    container_name: "config-service"
+    ports:
+      - 8888:8888
+      - 9888:9888
+    environment:
+      - BPL_JVM_THREAD_COUNT=10
+      - BPL_DEBUG_ENABLED=true
+      - BPL_DEBUG_PORT=9888
 
   # Backing Services
 
