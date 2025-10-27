@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solar-postgres
+  labels:
+    db: solar-postgres
+spec:
+  selector:
+    matchLabels:
+      db: solar-postgres
+  template:
+    metadata:
+      labels:
+        db: solar-postgres
+    spec:
+      containers:
+        - name: solar-postgres
+          image: postgres:18
+          env:
+            - name: POSTGRES_USER
+              value: user
+            - name: POSTGRES_PASSWORD
+              value: secret 
+            - name: POSTGRES_DB
+              value: solardb_catalog
+          resources:
+            requests:
+              cpu: 100m
+              memory: 60Mi
+            limits:
+              cpu: 200m
+              memory: 120Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: solar-postgres
+  labels:
+    db: solar-postgres
+spec:
+  type: ClusterIP
+  selector:
+    db: solar-postgres
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
