@@ -41,4 +41,5 @@ services:
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=solardb_catalog
+    volumes:
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
