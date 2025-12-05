@@ -38,7 +38,7 @@ services:
   
   edge-service:
     depends_on:
-      - polar-redis
+      - solar-redis
     image: "edge-service"
     container_name: "edge-service"
     ports:
