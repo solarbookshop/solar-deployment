@@ -38,7 +38,7 @@ services:
   
   dispatcher-service:
     depends_on:
-      - polar-rabbitmq
+      - solar-rabbitmq
     image: "dispatcher-service"
     container_name: dispatcher-service
     ports:
