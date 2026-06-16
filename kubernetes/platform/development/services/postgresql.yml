@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: solar-postgres
-          image: postgres:18
+          image: postgres:18-alpine
           env:
             - name: POSTGRES_USER
               value: user
