@@ -42,4 +42,17 @@ kubectl wait \
   --selector=db=solar-redis \
   --timeout=180s
 
+printf "\n⌛ Waiting for RabbitMQ to be deployed..."
+
+while [ "$(kubectl get pod -l db=solar-rabbitmq | wc -l)" -eq 0 ] ; do
+  sleep 5
+done
+
+printf "\n⌛ Waiting for RabbitMQ to be ready..."
+
+kubectl wait \
+  --for=condition=ready pod \
+  --selector=db=solar-rabbitmq \
+  --timeout=180s
+
 printf "\n⛵ Happy Sailing!\n"
