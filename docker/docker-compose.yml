@@ -54,12 +54,17 @@ services:
 
   edge-service:
     depends_on:
+      - solar-keycloak
       - solar-redis
+      - solar-ui
     image: "edge-service"
     container_name: "edge-service"
     ports:
       - "9000:9000"
       - "8000:8000"
+#    On Linux, the host.docker.internal DNS entry does not exist inside containers unless you explicitly tell Docker to map it to the host's gateway IP.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - BPL_DEBUG_ENABLED=true
       - BPL_DEBUG_PORT=8000
@@ -67,6 +72,8 @@ services:
       - ORDER_SERVICE_URL=http://order-service:9002
       - SPRING_CLOUD_CONFIG_URI=http://config-service:8888
       - SPRING_DATA_REDIS_HOST=solar-redis
+      - SPA_URL=http://solar-ui:9004
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://host.docker.internal:8080/realms/SolarBookshop
 
   config-service:
     image: "config-service"
@@ -78,6 +85,14 @@ services:
       - BPL_JVM_THREAD_COUNT=10
       - BPL_DEBUG_ENABLED=true
       - BPL_DEBUG_PORT=9888
+
+  solar-ui:
+    image: "solar-ui"
+    container_name: "solar-ui"
+    ports:
+      - "9004:9004"
+    environment:
+      - PORT=9004
 
   # Backing Services
 
@@ -106,3 +121,15 @@ services:
       - "15672:15672"
     volumes:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+
+  solar-keycloak:
+    image: "quay.io/keycloak/keycloak:24.0"
+    container_name: "solar-keycloak"
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=secret
+    command: start-dev --import-realm
+    volumes:
+      - ./keycloak/realm:/opt/keycloak/data/import
