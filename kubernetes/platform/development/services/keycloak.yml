@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solar-keycloak
+  labels:
+    app: solar-keycloak
+spec:
+  selector:
+    matchLabels:
+      app: solar-keycloak
+  template:
+    metadata:
+      labels:
+        app: solar-keycloak
+    spec:
+      containers:
+        - name: solar-keycloak
+          image: quay.io/keycloak/keycloak:24.0
+          args:
+            - "start-dev"
+            - "--import-realm"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: admin
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: secret
+          startupProbe:
+            httpGet:
+              path: /realms/master
+              port: 8080
+            failureThreshold: 40
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /realms/master
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 350Mi
+            limits:
+              cpu: 500m
+              memory: 750Mi
+          volumeMounts:
+            - name: solar-keycloak-config-volume
+              mountPath: /opt/keycloak/data/import
+      volumes:
+        - name: solar-keycloak-config-volume
+          configMap:
+            name: solar-keycloak
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: solar-keycloak
+  labels:
+    app: solar-keycloak
+spec:
+  type: ClusterIP
+  selector:
+    app: solar-keycloak
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-ingress
+  labels:
+    app: solar-keycloak
+spec:
+  rules:
+    - host: solar-keycloak
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: solar-keycloak
+                port:
+                  number: 80
