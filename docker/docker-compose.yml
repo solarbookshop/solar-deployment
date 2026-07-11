@@ -4,6 +4,7 @@ services:
 
   catalog-service:
     depends_on:
+      - fluent-bit
       - solar-keycloak
       - solar-postgres
     image: "catalog-service"
@@ -23,6 +24,17 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://solar-postgres:5432/solardb_catalog
       - SPRING_PROFILES_ACTIVE=testdata
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://host.docker.internal:8080/realms/SolarBookshop
+      - OTEL_SERVICE_NAME=catalog-service
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
+      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
+      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
+      # By default, Spring Boot's tracing configuration has a sampling probability of 0.1, safety measure to prevent overloading.
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 127.0.0.1:24224
 
   order-service:
     depends_on:
@@ -45,9 +57,20 @@ services:
       - SPRING_FLYWAY_URL=jdbc:postgresql://solar-postgres:5432/solardb_order
       - SPRING_RABBITMQ_HOST=solar-rabbitmq
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://host.docker.internal:8080/realms/SolarBookshop
+      - OTEL_SERVICE_NAME=order-service
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
+      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
+      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 127.0.0.1:24224
 
   dispatcher-service:
     depends_on:
+      - fluent-bit
       - solar-rabbitmq
     image: "dispatcher-service"
     container_name: dispatcher-service
@@ -59,9 +82,20 @@ services:
       - BPL_DEBUG_PORT=8003
       - SPRING_CLOUD_CONFIG_URI=http://config-service:8888
       - SPRING_RABBITMQ_HOST=solar-rabbitmq
+      - OTEL_SERVICE_NAME=dispatcher-service
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
+      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
+      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 127.0.0.1:24224
 
   edge-service:
     depends_on:
+      - fluent-bit
       - solar-keycloak
       - solar-redis
       - solar-ui
@@ -82,8 +116,20 @@ services:
       - SPRING_DATA_REDIS_HOST=solar-redis
       - SPA_URL=http://solar-ui:9004
       - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://host.docker.internal:8080/realms/SolarBookshop
+      - OTEL_SERVICE_NAME=edge-service
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
+      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
+      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 127.0.0.1:24224
 
   config-service:
+    depends_on:
+      - fluent-bit
     image: "config-service"
     container_name: "config-service"
     ports:
@@ -93,6 +139,15 @@ services:
       - BPL_JVM_THREAD_COUNT=10
       - BPL_DEBUG_ENABLED=true
       - BPL_DEBUG_PORT=9888
+      - OTEL_SERVICE_NAME=config-service
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
+      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
+      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
+      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 127.0.0.1:24224
 
   solar-ui:
     image: "solar-ui"
@@ -141,3 +196,58 @@ services:
     command: start-dev --import-realm
     volumes:
       - ./keycloak/realm:/opt/keycloak/data/import
+
+# Observability
+
+  grafana:
+    image: grafana/grafana-oss:13.0.2
+    container_name: grafana
+    depends_on:
+      - loki
+      - prometheus
+      - tempo
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=user
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    volumes:
+      - ./observability/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./observability/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./observability/grafana/grafana.ini:/etc/grafana/grafana.ini
+
+  loki:
+    image: grafana/loki:3.7.3
+    container_name: loki
+    depends_on:
+      - fluent-bit
+    ports:
+      - "3100:3100"
+
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:3.7
+    container_name: fluent-bit
+    ports:
+      - "24224:24224"
+    environment:
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+    volumes:
+      - ./observability/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+
+  prometheus:
+    image: quay.io/prometheus/prometheus:v3.13.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  tempo:
+    image: grafana/tempo:3.0.2
+    container_name: tempo
+    command: -config.file=/etc/tempo-config.yml
+    ports:
+      - "3110:3100"     # Tempo
+      - "4317:4317"     # OTel
+    volumes:
+      - ./observability/tempo/tempo.yml:/etc/tempo-config.yml
