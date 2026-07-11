@@ -25,12 +25,11 @@ services:
       - SPRING_PROFILES_ACTIVE=testdata
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://host.docker.internal:8080/realms/SolarBookshop
       - OTEL_SERVICE_NAME=catalog-service
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
-      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
-      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
-      # By default, Spring Boot's tracing configuration has a sampling probability of 0.1, safety measure to prevent overloading.
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-javaagent:/workspace/BOOT-INF/lib/opentelemetry-javaagent-2.29.0.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     logging:
       driver: fluentd
       options:
@@ -58,11 +57,11 @@ services:
       - SPRING_RABBITMQ_HOST=solar-rabbitmq
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://host.docker.internal:8080/realms/SolarBookshop
       - OTEL_SERVICE_NAME=order-service
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
-      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
-      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-javaagent:/workspace/BOOT-INF/lib/opentelemetry-javaagent-2.29.0.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     logging:
       driver: fluentd
       options:
@@ -83,11 +82,11 @@ services:
       - SPRING_CLOUD_CONFIG_URI=http://config-service:8888
       - SPRING_RABBITMQ_HOST=solar-rabbitmq
       - OTEL_SERVICE_NAME=dispatcher-service
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
-      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
-      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-javaagent:/workspace/BOOT-INF/lib/opentelemetry-javaagent-2.29.0.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     logging:
       driver: fluentd
       options:
@@ -104,7 +103,7 @@ services:
     ports:
       - "9000:9000"
       - "8000:8000"
-#    On Linux, the host.docker.internal DNS entry does not exist inside containers unless you explicitly tell Docker to map it to the host's gateway IP.
+    #    On Linux, the host.docker.internal DNS entry does not exist inside containers unless you explicitly tell Docker to map it to the host's gateway IP.
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
@@ -117,11 +116,11 @@ services:
       - SPA_URL=http://solar-ui:9004
       - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://host.docker.internal:8080/realms/SolarBookshop
       - OTEL_SERVICE_NAME=edge-service
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
-      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
-      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-javaagent:/workspace/BOOT-INF/lib/opentelemetry-javaagent-2.29.0.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     logging:
       driver: fluentd
       options:
@@ -140,10 +139,11 @@ services:
       - BPL_DEBUG_ENABLED=true
       - BPL_DEBUG_PORT=9888
       - OTEL_SERVICE_NAME=config-service
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT=http://tempo:4317
-      - MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_TRANSPORT=grpc
-      - MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED=false
-      - MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED=false
+      - JAVA_TOOL_OPTIONS=-javaagent:/workspace/BOOT-INF/lib/opentelemetry-javaagent-2.29.0.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     logging:
       driver: fluentd
       options:
@@ -197,7 +197,7 @@ services:
     volumes:
       - ./keycloak/realm:/opt/keycloak/data/import
 
-# Observability
+  # Observability
 
   grafana:
     image: grafana/grafana-oss:13.0.2
