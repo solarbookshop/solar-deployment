@@ -1,0 +1,14 @@
+resources:
+  - github.com/solarbookshop/order-service/k8s?ref=main
+
+patches:
+  - path: patch-env.yml
+
+images:
+  - name: order-service
+    newName: ghcr.io/solarbookshop/order-service
+    newTag: latest
+
+replicas:
+  - name: order-service
+    count: 2

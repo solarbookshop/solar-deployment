@@ -1,0 +1,14 @@
+resources:
+  - github.com/solarbookshop/edge-service/k8s?ref=main
+
+patches:
+  - path: patch-env.yml
+
+images:
+  - name: edge-service
+    newName: ghcr.io/solarbookshop/edge-service
+    newTag: latest
+
+replicas:
+  - name: edge-service
+    count: 2

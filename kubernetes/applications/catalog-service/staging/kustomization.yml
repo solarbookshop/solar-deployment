@@ -1,0 +1,20 @@
+resources:
+  - github.com/solarbookshop/catalog-service/k8s?ref=main
+
+patches:
+  - path: patch-env.yml
+
+configMapGenerator:
+  - behavior: merge
+    files:
+      - application-staging.yml
+    name: catalog-config
+
+images:
+  - name: catalog-service
+    newName: ghcr.io/solarbookshop/catalog-service
+    newTag: latest
+
+replicas:
+  - name: catalog-service
+    count: 2

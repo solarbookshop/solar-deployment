@@ -1,0 +1,14 @@
+resources:
+  - github.com/solarbookshop/dispatcher-service/k8s?ref=main
+
+patches:
+  - path: patch-env.yml
+
+images:
+  - name: dispatcher-service
+    newName: ghcr.io/solarbookshop/dispatcher-service
+    newTag: latest
+
+replicas:
+  - name: dispatcher-service
+    count: 2
