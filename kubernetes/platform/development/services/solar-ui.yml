@@ -16,8 +16,7 @@ spec:
     spec:
       containers:
         - name: solar-ui
-#          image: ghcr.io/solarbookshop/solar-ui
-          image: solar-ui:latest
+          image: ghcr.io/solarbookshop/solar-ui:latest
           imagePullPolicy: IfNotPresent
           lifecycle:
             preStop:
