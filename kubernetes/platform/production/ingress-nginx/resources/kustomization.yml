@@ -1,0 +1,5 @@
+resources:
+  - https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/do/deploy.yaml
+
+patches:
+  - path: patch-config.yml
