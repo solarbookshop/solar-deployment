@@ -1,10 +1,17 @@
 # solar-deployment
 
+## Why maintain a separate repository for deployment configuration ?
+
+- It makes it possible to control the deployment of all the system components from a single place.
+- It allows focused version-control, auditing, and compliance checks before deploying anything to production.
+- It fits the GitOps approach, where delivery and deployment tasks are decoupled.
+
 ## 🐳 Local Development with Docker (Linux)
 
 When running the system via Docker Compose on Linux, the `host.docker.internal` hostname is not resolved automatically inside containers or on the host machine. This hostname is required so that both the services (inside Docker) and your browser (outside Docker) can use the same OIDC Issuer URL for Keycloak.
 
 ### 1. `docker-compose.yml` Configuration
+
 The `edge-service` is configured with `extra_hosts` to map `host.docker.internal` to the host's gateway:
 
 ```yaml
@@ -16,13 +23,11 @@ The `edge-service` is configured with `extra_hosts` to map `host.docker.internal
 ```
 
 ### 2. Host Machine Configuration
+
 To allow your web browser to reach Keycloak via the same URL, add `host.docker.internal` to your local `/etc/hosts` file:
 
-- Open the file: `sudo nano /etc/hosts`
-- Add the entry: `127.0.0.1 host.docker.internal`
-
-or run
-- `echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts`
+- Open the file: `sudo nano /etc/hosts` then add `127.0.0.1 host.docker.internal`
+- Or run `echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts`
 
 ## ☸️ Local Development with Kubernetes (Minikube)
 
@@ -31,23 +36,33 @@ On Kubernetes, Pods within the cluster access Keycloak via its Service name (e.g
 To fix this, you must map the `solar-keycloak` hostname to the cluster's IP address in your local hosts file.
 
 ### 1. Identify the Cluster IP
+
 Run the following command to get the IP address of your Minikube node:
+
 ```bash
-minikube ip
+minikube profile list
 ```
 
 ### 2. Update Host Machine Configuration
+
 Map the solar-keycloak hostname to the IP returned by the previous command.
+
 - Linux / macOS:
+
 ```bash
 # Replace <ip-address> with the result of 'minikube ip'
 echo "<ip-address> solar-keycloak" | sudo tee -a /etc/hosts
 ```
 
 - Windows (PowerShell as Admin):
+
 ```bash
 Add-Content C:\Windows\System32\drivers\etc\hosts "127.0.0.1 solar-keycloak"
 ```
+
+## 🔭 Observability & Monitoring
+
+For details on the observability and monitoring stack (Grafana, Prometheus, Loki, Fluent Bit, Tempo, OpenTelemetry, and Spring Boot Actuator) and how to query logs, metrics, and traces: 👉 **[Observability & Monitoring Guide](OBSERVABILITY.md)**
 
 ## 🚀 Minikube — Cluster & Environment Management
 
