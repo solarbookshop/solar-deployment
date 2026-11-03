@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: solar-keycloak
-          image: quay.io/keycloak/keycloak:24.0
+          image: quay.io/keycloak/keycloak:26.6
           args:
             - "start-dev"
             - "--import-realm"

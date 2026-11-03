@@ -713,7 +713,8 @@
             "clientAuthenticatorType": "client-secret",
             "secret": "solar-keycloak-secret",
             "redirectUris": [
-                "*"
+              "http://localhost:9000",
+              "http://localhost:9000/login/oauth2/code/*"
             ],
             "webOrigins": [
                 "*"
