@@ -1,22 +1,24 @@
 resources:
-  - github.com/solarbookshop/edge-service/k8s?ref=<release_sha>
+- github.com/solarbookshop/edge-service/k8s?ref=aceffcff6cea249ae2f18b5a69b9929bb7e0ef27
 
 patches:
-  - path: patch-env.yml
-  - path: patch-resources.yml
-  - path: patch-volumes.yml
+- path: patch-env.yml
+- path: patch-resources.yml
+- path: patch-volumes.yml
 
 configMapGenerator:
-  - behavior: merge
-    files:
-      - application-prod.yml
-    name: edge-config
+- behavior: merge
+  files:
+  - application-prod.yml
+  name: edge-config
 
 images:
-  - name: edge-service
-    newName: ghcr.io/solarbookshop/edge-service
-    newTag: <release_sha>
+- name: edge-service
+  newName: ghcr.io/solarbookshop/edge-service
+  newTag: aceffcff6cea249ae2f18b5a69b9929bb7e0ef27
 
 replicas:
-  - name: edge-service
-    count: 2
+- count: 2
+  name: edge-service
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
