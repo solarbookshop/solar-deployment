@@ -1,22 +1,24 @@
 resources:
-  - github.com/solarbookshop/catalog-service/k8s?ref=<release_sha>
+- github.com/solarbookshop/catalog-service/k8s?ref=638c45ec0225acc2d6fd861cbc9d02c7915b2ac4
 
 patches:
-  - path: patch-env.yml
-  - path: patch-resources.yml
-  - path: patch-volumes.yml
+- path: patch-env.yml
+- path: patch-resources.yml
+- path: patch-volumes.yml
 
 configMapGenerator:
-  - behavior: merge
-    files:
-      - application-prod.yml
-    name: catalog-config
+- behavior: merge
+  files:
+  - application-prod.yml
+  name: catalog-config
 
 images:
-  - name: catalog-service
-    newName: ghcr.io/solarbookshop/catalog-service
-    newTag: <release_sha>
+- name: catalog-service
+  newName: ghcr.io/solarbookshop/catalog-service
+  newTag: 638c45ec0225acc2d6fd861cbc9d02c7915b2ac4
 
 replicas:
-  - name: catalog-service
-    count: 2
+- count: 2
+  name: catalog-service
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
