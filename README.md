@@ -60,6 +60,14 @@ echo "<ip-address> solar-keycloak" | sudo tee -a /etc/hosts
 Add-Content C:\Windows\System32\drivers\etc\hosts "127.0.0.1 solar-keycloak"
 ```
 
+## ⚙️ Configuration & Secrets Management
+
+For details on externalized configuration, ConfigMaps, Secrets, Kustomize bases/overlays, and automated zero-downtime rolling restarts (with `catalog-service` as reference): 👉 **[Configuration & Secrets Management Guide](CONFIG_SECRET_MANAGEMENT.md)**
+
+## 🚢 Continuous Delivery & GitOps
+
+For details on the continuous delivery pipeline (Commit Stage, Acceptance/Staging Stage, Production Delivery, and GitOps with Argo CD): 👉 **[Continuous Delivery & GitOps Guide](CONTINUOUS_DELIVERY.md)**
+
 ## 🔭 Observability & Monitoring
 
 For details on the observability and monitoring stack (Grafana, Prometheus, Loki, Fluent Bit, Tempo, OpenTelemetry, and Spring Boot Actuator) and how to query logs, metrics, and traces: 👉 **[Observability & Monitoring Guide](OBSERVABILITY.md)**
