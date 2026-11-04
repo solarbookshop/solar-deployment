@@ -64,52 +64,108 @@ Add-Content C:\Windows\System32\drivers\etc\hosts "127.0.0.1 solar-keycloak"
 
 For details on the observability and monitoring stack (Grafana, Prometheus, Loki, Fluent Bit, Tempo, OpenTelemetry, and Spring Boot Actuator) and how to query logs, metrics, and traces: 👉 **[Observability & Monitoring Guide](OBSERVABILITY.md)**
 
-## 🚀 Minikube — Cluster & Environment Management
+## 🚀 Minikube Cheatsheet
 
-| Task / Purpose                                                        | Command / Example                                                                         |
-|:----------------------------------------------------------------------|:------------------------------------------------------------------------------------------|
-| Start a local cluster                                                 | `minikube start` ([Roy's Blog][mk-1])                                                     |
-| Start with custom resources (memory, CPU, K8s version)                | `minikube start --cpus 2 --memory 4g --driver docker --profile dev` ([Jacob Weber][mk-2]) |
-| Stop the cluster (pause the VM, keep state)                           | `minikube stop` ([Cloudutsuk][mk-3])                                                      |
-| Delete the cluster (clean up VM + config)                             | `minikube delete` ([Cloudutsuk][mk-3])                                                    |
-| Check cluster/VM status                                               | `minikube status` ([Cloudutsuk][mk-3])                                                    |
-| Get the IP address of Minikube VM / node                              | `minikube ip` ([Cloudutsuk][mk-3])                                                        |
-| Open the Kubernetes Dashboard in browser                              | `minikube dashboard` ([John CD][mk-4])                                                    |
-| Use Minikube’s Docker daemon to build images for cluster              | `eval $(minikube docker-env)` then `docker build ...` ([John CD][mk-4])                   |
-| View logs of Kubernetes components / Minikube VM                      | `minikube logs` ([Cloudutsuk][mk-3])                                                      |
-| SSH into the Minikube VM (for debugging/container runtime inspection) | `minikube ssh` ([Jacob Weber][mk-2])                                                      |
-| Manage Minikube per-profile (if using multiple clusters)              | `minikube profile list`, `minikube start -p <profile>`, etc. ([Cloudutsuk][mk-3])         |
-| Enable or disable addons (e.g. ingress, metrics-server, etc.)         | `minikube addons enable <addon>`, `minikube addons disable <addon>` ([Jacob Weber][mk-2]) |
+### 1. Cluster Lifecycle & Environment
 
-[mk-1]: https://shantoroy.com/kubernetes/learn-kubernetes-commands-operations-using-minikube/?utm_source=chatgpt.com "#100daysofSRE (Day 30): Learn Kubernetes Commands and Operations using Minikube - Roy’s Blog"
-[mk-2]: https://jacobbweber.com/cheat-sheets/?utm_source=chatgpt.com "Cheat Sheets | Jacob Weber"
-[mk-3]: https://cloudutsuk.com/posts/devops/orchestration/miscellaneous/minikube-commands-cheatsheet/?utm_source=chatgpt.com "Minikube CMDsheet | Cloudutsuk"
-[mk-4]: https://john-cd.com/cheatsheets/Containers/Kubernetes_Cheatsheet/?utm_source=chatgpt.com "Kubernetes Cheatsheet - John's Cheatsheets"
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **Start cluster** | `minikube start` | Starts default single-node cluster |
+| **Start with custom resources** | `minikube start --cpus 4 --memory 8192 --driver docker` | Recommended allocation for microservice suites |
+| **Check cluster status** | `minikube status` | Verify control plane, kubelet, and runtime status |
+| **Get cluster node IP** | `minikube ip` | IP used for `/etc/hosts` resolution and routing |
+| **Pause / Stop cluster** | `minikube pause` / `minikube stop` | `stop` pauses container/VM while preserving state |
+| **Delete cluster** | `minikube delete` | Cleans up VM, container, and all cluster state |
+| **List profiles** | `minikube profile list` | View all configured local clusters |
+| **Start specific profile** | `minikube start -p <profile-name>` | Switch to and start a specific cluster profile |
 
-## 🔧 kubectl — Cluster / Resource Management & Inspection
+### 2. Networking & Service Access
 
-| Purpose / Use                                       | Sample Commands                                                                                                                |
-|:----------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------|
-| Check kubectl / cluster version / info              | `kubectl version`, `kubectl cluster-info` ([Mirantis][kc-1])                                                                   |
-| View current kubeconfig / contexts                  | `kubectl config view`, `kubectl config get-contexts`, `kubectl config use-context <context>` ([Technology to the Point][kc-2]) |
-| List nodes in the cluster                           | `kubectl get nodes`, `kubectl get nodes -o wide` ([Mirantis][kc-1])                                                            |
-| Describe a node (or other resource)                 | `kubectl describe node <node-name>` ([GeeksforGeeks][kc-3])                                                                    |
-| List all pods (possibly across namespaces)          | `kubectl get pods`, `kubectl get pods -A`, `kubectl get pods -o wide` ([Mirantis][kc-1])                                       |
-| Describe a pod (see details/status)                 | `kubectl describe pod <pod-name>` ([Mirantis][kc-1])                                                                           |
-| View logs of a pod (container)                      | `kubectl logs <pod-name>`, or with namespace/container flags, or follow: `-f` ([Metric Insights Help][kc-4])                   |
-| Execute a command / get shell inside a container    | `kubectl exec -it <pod-name> -- /bin/sh` (or `/bin/bash`) ([Mirantis][kc-1])                                                   |
-| Create resources (deployments/pods) imperatively    | `kubectl run <name> --image=<image> --replicas=2 --port=...` ([John CD][kc-5])                                                 |
-| Create / apply resources declaratively              | `kubectl apply -f <manifest.yaml>` or `kubectl create -f <manifest.yaml>` ([HowtoForge][kc-6])                                 |
-| Get various resources (deployments, services, etc.) | `kubectl get deployments`, `kubectl get services`, `kubectl get all` (or `--all-namespaces`) ([Developer Tools][kc-7])         |
-| Describe / show details of resources                | `kubectl describe <resource> <name>` (e.g. deployment, service, pod) ([Cheat Sheet Factory][kc-8])                             |
-| Delete resource(s)                                  | `kubectl delete <resource-type> <name>`; or delete all in namespace / all resources from a file ([Metric Insights Help][kc-4]) |
-| View available API resources                        | `kubectl api-resources` ([HowtoForge][kc-6])                                                                                   |
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **Network tunnel** | `minikube tunnel` | Routes `LoadBalancer` services directly to localhost *(keeps shell open)* |
+| **Open service in browser** | `minikube service <service-name>` | Automatically opens browser or prints external URL |
+| **List exposed services** | `minikube service list` | View reachable URLs across all active services |
+| **Kubernetes Dashboard** | `minikube dashboard` | Launches the web-based administrative dashboard |
 
-[kc-1]: https://www.mirantis.com/blog/kubernetes-cheat-sheet/?utm_source=chatgpt.com "Kubernetes Cheat Sheet | Mirantis"
-[kc-2]: https://www.technologytothepoint.com/2025/03/kubectl-essentials-must-know-commands.html?utm_source=chatgpt.com "Kubectl Essentials: Must-Know Commands for Kubernetes"
-[kc-3]: https://www.geeksforgeeks.org/kubectl-cheatsheet/?utm_source=chatgpt.com "Kubectl Command Cheat Sheet - GeeksforGeeks"
-[kc-4]: https://help.metricinsights.com/m/Deployment_and_Configuration/l/1234773-kubectl-commands-cheat-sheet?utm_source=chatgpt.com "Kubectl Commands Cheat Sheet | Deployment & Configuration | Help & Documentation"
-[kc-5]: https://john-cd.com/cheatsheets/Containers/Kubernetes_Cheatsheet/?utm_source=chatgpt.com "Kubernetes Cheatsheet - John's Cheatsheets"
-[kc-6]: https://www.howtoforge.com/kubernetes_commands/?utm_source=chatgpt.com "Cheat Sheet for Kubernetes Commands"
-[kc-7]: https://devtoolcafe.com/tools/kubernetes-cheatsheet?utm_source=chatgpt.com "Kubernetes Cheatsheet - Quick Reference for Common kubectl Commands - Developer Tools"
-[kc-8]: https://cheatsheetfactory.geekyhacker.com/container/kubectl?utm_source=chatgpt.com "kubectl cheatsheet"
+### 3. Addons & Docker Runtime
+
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **List addons** | `minikube addons list` | View available and enabled addons |
+| **Enable addon** | `minikube addons enable <addon>` | Common addons: `ingress`, `metrics-server` |
+| **Use Minikube's Docker daemon** | `eval $(minikube docker-env)` | Build images directly inside Minikube (`docker build ...`) |
+| **Load local image into cluster** | `minikube image load <image:tag>` | Push an existing host image directly into Minikube |
+
+### 4. Diagnostics & Maintenance
+
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **SSH into cluster node** | `minikube ssh` | Direct shell access to inspect node and container runtime |
+| **View Minikube logs** | `minikube logs` | Inspect VM boot, kubelet, and driver logs |
+| **Mount local directory** | `minikube mount <local-path>:<node-path>` | Mount local files/directories into the Minikube node |
+
+---
+
+## 🔧 kubectl Cheatsheet
+
+### 1. Cluster Context & Namespaces
+
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **Cluster info** | `kubectl cluster-info` | Verify API server connection and control plane |
+| **Version check** | `kubectl version` | Verify client and server Kubernetes versions |
+| **List contexts** | `kubectl config get-contexts` | View all available kubeconfig contexts |
+| **Switch context** | `kubectl config use-context <context>` | Switch active cluster/user context |
+| **Set default namespace** | `kubectl config set-context --current --namespace=<ns>` | Avoid typing `-n <ns>` for every subsequent command |
+| **List API resources** | `kubectl api-resources` | Reference all supported resource kinds and aliases (`po`, `svc`, `deploy`, `ing`) |
+
+### 2. Inspecting & Querying Resources
+
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **List pods** | `kubectl get pods` | List pods in current namespace |
+| **List pods (wide view)** | `kubectl get pods -A -o wide` | View pods across all namespaces with node and IP details |
+| **Watch pods in real-time** | `kubectl get pods -w` | Stream status updates (e.g., during startup/rollouts) |
+| **Inspect all resources** | `kubectl get all -n <namespace>` | High-level summary of pods, services, deployments |
+| **Describe resource** | `kubectl describe <type> <name>` | Detailed status, lifecycle events, probe failures, and conditions |
+| **Export resource definition** | `kubectl get deploy <name> -o yaml` | View live cluster manifest in YAML format |
+| **Node resource usage** | `kubectl top nodes` | Inspect node CPU and memory consumption |
+| **Pod resource usage** | `kubectl top pods` | Inspect pod CPU and memory metrics *(requires `metrics-server`)* |
+
+### 3. Deployments & Lifecycle Management
+
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **Apply manifests** | `kubectl apply -f <path>/` | Declarative create or update from files/directories |
+| **Delete manifests** | `kubectl delete -f <path>/` | Teardown resources defined in files/directories |
+| **Restart deployment** | `kubectl rollout restart deploy/<name>` | Trigger a rolling restart (picks up new image tags / configs) |
+| **Check rollout status** | `kubectl rollout status deploy/<name>` | Monitor rolling update progress in real time |
+| **Rollback deployment** | `kubectl rollout undo deploy/<name>` | Revert to previous deployment revision |
+| **Scale deployment** | `kubectl scale deploy/<name> --replicas=3` | Imperatively adjust replica count |
+
+### 4. Debugging & Troubleshooting
+
+| Task / Purpose | Command | Notes / Example |
+| :--- | :--- | :--- |
+| **Stream pod logs** | `kubectl logs -f <pod-name>` | Follow live log output of a specific pod |
+| **Stream deployment logs** | `kubectl logs -f deployment/<name>` | Follow logs across all pods managed by a deployment |
+| **View crashed container logs** | `kubectl logs <pod-name> --previous` | View logs from preceding container crash (`CrashLoopBackOff`) |
+| **Interactive container shell** | `kubectl exec -it <pod-name> -- sh` | Open terminal inside container (`sh` or `bash`) |
+| **Port forward to localhost** | `kubectl port-forward svc/<service-name> 8080:8080` | Route service/pod traffic directly to `localhost` |
+| **Recent cluster events** | `kubectl get events --sort-by='.metadata.creationTimestamp'` | Chronological log of cluster warnings, failures, and schedules |
+
+### 💡 Daily Productivity Tips
+
+```bash
+# Recommended shell aliases (.bashrc / .zshrc)
+alias k="kubectl"
+alias kgp="kubectl get pods"
+alias kgs="kubectl get svc"
+alias kgd="kubectl get deployment"
+alias kl="kubectl logs -f"
+alias kd="kubectl describe"
+
+# Generate manifest boilerplate without creating resources
+kubectl create deployment my-service --image=my-image:latest --dry-run=client -o yaml > deployment.yaml
+```
