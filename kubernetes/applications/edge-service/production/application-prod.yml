@@ -1,0 +1,7 @@
+solar:
+  catalog-service-url: http://catalog-service
+  order-service-url: http://order-service
+  spa-url: http://solar-ui
+spring:
+  config:
+    import: configtree:/workspace/secrets/*/

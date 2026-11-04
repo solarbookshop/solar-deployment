@@ -1,0 +1,5 @@
+solar:
+  catalog-service-uri: http://catalog-service
+spring:
+  config:
+    import: configtree:/workspace/secrets/*/

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: catalog-service
+          volumeMounts:
+            - name: postgres-credentials-volume
+              mountPath: /workspace/secrets/postgres
+            - name: keycloak-credentials-volume
+              mountPath: /workspace/secrets/keycloak
+      volumes:
+        - name: postgres-credentials-volume
+          secret:
+            secretName: solar-postgres-catalog-credentials
+        - name: keycloak-credentials-volume
+          secret:
+            secretName: keycloak-issuer-resourceserver-secret

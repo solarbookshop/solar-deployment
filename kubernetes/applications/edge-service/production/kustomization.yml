@@ -1,0 +1,22 @@
+resources:
+  - github.com/solarbookshop/edge-service/k8s?ref=<release_sha>
+
+patches:
+  - path: patch-env.yml
+  - path: patch-resources.yml
+  - path: patch-volumes.yml
+
+configMapGenerator:
+  - behavior: merge
+    files:
+      - application-prod.yml
+    name: edge-config
+
+images:
+  - name: edge-service
+    newName: ghcr.io/solarbookshop/edge-service
+    newTag: <release_sha>
+
+replicas:
+  - name: edge-service
+    count: 2

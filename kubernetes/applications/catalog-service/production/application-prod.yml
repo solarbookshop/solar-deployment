@@ -1,0 +1,5 @@
+solar:
+  greeting: Welcome to our production book catalog! 🚀
+spring:
+  config:
+    import: configtree:/workspace/secrets/*/

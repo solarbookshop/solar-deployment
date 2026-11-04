@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: edge-service
+          volumeMounts:
+            - name: edge-config-volume
+              mountPath: /workspace/config
+            - name: valkey-credentials-volume
+              mountPath: /workspace/secrets/valkey
+            - name: keycloak-issuer-volume
+              mountPath: /workspace/secrets/keycloak-issuer
+            - name: keycloak-client-volume
+              mountPath: /workspace/secrets/keycloak-client
+      volumes:
+        - name: edge-config-volume
+          configMap:
+            name: edge-config
+        - name: valkey-credentials-volume
+          secret:
+            secretName: solar-valkey-credentials
+        - name: keycloak-issuer-volume
+          secret:
+            secretName: keycloak-issuer-client-secret
+        - name: keycloak-client-volume
+          secret:
+            secretName: solar-keycloak-client-credentials

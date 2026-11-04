@@ -1,0 +1,22 @@
+resources:
+  - github.com/solarbookshop/dispatcher-service/k8s?ref=<release_sha>
+
+patches:
+  - path: patch-env.yml
+  - path: patch-resources.yml
+  - path: patch-volumes.yml
+
+configMapGenerator:
+  - behavior: merge
+    files:
+      - application-prod.yml
+    name: dispatcher-config
+
+images:
+  - name: dispatcher-service
+    newName: ghcr.io/solarbookshop/dispatcher-service
+    newTag: <release_sha>
+
+replicas:
+  - name: dispatcher-service
+    count: 2

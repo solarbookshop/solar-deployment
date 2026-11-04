@@ -1,0 +1,37 @@
+name: Production Stage
+
+on:
+  repository_dispatch:
+    types: [ app_delivery ]
+
+jobs:
+  update:
+    name: Update application version
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+    env:
+      APP_IMAGE: ${{ github.event.client_payload.app_image }}
+      APP_NAME: ${{ github.event.client_payload.app_name }}
+      APP_VERSION: ${{ github.event.client_payload.app_version }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5.0.0
+      - name: Setup tools
+        uses: alexellis/setup-arkade@v3
+      - name: Install tools
+        uses: alexellis/arkade-get@master
+        with:
+          kustomize: latest
+      - name: Update image version and Git ref
+        run: |
+          cd kubernetes/applications/${{ env.APP_NAME }}/production
+          # Update container image tag
+          kustomize edit set image ${{ env.APP_NAME }}=${{ env.APP_IMAGE }}:${{ env.APP_VERSION }}
+          # Update remote base Git ref to the release commit SHA
+          sed -i -E "s/(ref=)[a-zA-Z0-9_\.<>-]+/\1${{ env.APP_VERSION }}/" kustomization.yml
+      - name: Commit updated manifests
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(release): update ${{ env.APP_NAME }} to version ${{ env.APP_VERSION }}"
+          branch: main

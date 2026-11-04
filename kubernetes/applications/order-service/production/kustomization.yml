@@ -1,0 +1,21 @@
+resources:
+  - github.com/solarbookshop/order-service/k8s?ref=<release_sha>
+
+patches:
+  - path: patch-env.yml
+  - path: patch-resources.yml
+  - path: patch-volumes.yml
+
+configMapGenerator:
+  - files:
+      - application-prod.yml
+    name: order-config
+
+images:
+  - name: order-service
+    newName: ghcr.io/solarbookshop/order-service
+    newTag: <release_sha>
+
+replicas:
+  - name: order-service
+    count: 2
