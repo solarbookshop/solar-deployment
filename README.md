@@ -1,11 +1,5 @@
 # solar-deployment
 
-## Why maintain a separate repository for deployment configuration ?
-
-- It makes it possible to control the deployment of all the system components from a single place.
-- It allows focused version-control, auditing, and compliance checks before deploying anything to production.
-- It fits the GitOps approach, where delivery and deployment tasks are decoupled.
-
 ## 🐳 Local Development with Docker (Linux)
 
 When running the system via Docker Compose on Linux, the `host.docker.internal` hostname is not resolved automatically inside containers or on the host machine. This hostname is required so that both the services (inside Docker) and your browser (outside Docker) can use the same OIDC Issuer URL for Keycloak.
