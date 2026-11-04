@@ -16,7 +16,7 @@ jobs:
       APP_VERSION: ${{ github.event.client_payload.app_version }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v7.0.0
       - name: Setup tools
         uses: alexellis/setup-arkade@v3
       - name: Install tools
@@ -31,7 +31,7 @@ jobs:
           # Update remote base Git ref to the release commit SHA
           sed -i -E "s/(ref=)[a-zA-Z0-9_\.<>-]+/\1${{ env.APP_VERSION }}/" kustomization.yml
       - name: Commit updated manifests
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(release): update ${{ env.APP_NAME }} to version ${{ env.APP_VERSION }}"
           branch: main
