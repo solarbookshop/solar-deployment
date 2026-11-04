@@ -1,21 +1,23 @@
 resources:
-  - github.com/solarbookshop/order-service/k8s?ref=<release_sha>
+- github.com/solarbookshop/order-service/k8s?ref=ee969413b3d851e880619f46e4cf202e803789cb
 
 patches:
-  - path: patch-env.yml
-  - path: patch-resources.yml
-  - path: patch-volumes.yml
+- path: patch-env.yml
+- path: patch-resources.yml
+- path: patch-volumes.yml
 
 configMapGenerator:
-  - files:
-      - application-prod.yml
-    name: order-config
+- files:
+  - application-prod.yml
+  name: order-config
 
 images:
-  - name: order-service
-    newName: ghcr.io/solarbookshop/order-service
-    newTag: <release_sha>
+- name: order-service
+  newName: ghcr.io/solarbookshop/order-service
+  newTag: ee969413b3d851e880619f46e4cf202e803789cb
 
 replicas:
-  - name: order-service
-    count: 2
+- count: 2
+  name: order-service
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
